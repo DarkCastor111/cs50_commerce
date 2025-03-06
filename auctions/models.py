@@ -24,4 +24,7 @@ class AuctionListing(models.Model):
     categorie = models.CharField(max_length=64, choices=CATEGORIES, null=True)
     image_url = models.URLField(max_length=254, null=True)
 
+    def __str__(self):
+        return f"{self.titre} : {self.categorie}"
+
 
