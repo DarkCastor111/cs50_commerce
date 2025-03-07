@@ -13,10 +13,11 @@ class Bid(models.Model):
 
 class AuctionListing(models.Model):
     CATEGORIES = {
+        "--" : "Sans Catégorie",
         "MO" : "Mode",
         "JO" : "Jouets",
         "EL" : "Électronique",
-        "MA" : "Maison",
+        "MA" : "Maison"
     }
     titre = models.CharField(max_length=64)
     description = models.CharField(max_length=200)

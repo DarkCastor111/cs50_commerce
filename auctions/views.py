@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User
+from .models import User, AuctionListing
 
 
 def index(request):
@@ -61,3 +61,29 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+    
+def vue_creerArticle(request):
+    if request.method == "POST":
+        ttr = request.POST["form_titre"]
+        desc = request.POST["form_desc"]
+        map = request.POST["form_map"]
+        cat = request.POST["form_cat"]
+        img = request.POST["form_img"]
+        # On crée un nouveau AuctionListing
+        try:
+            al = AuctionListing.objects.create(titre = ttr, 
+                                               description = desc, 
+                                               mise_a_prix = map, 
+                                               categorie = cat, 
+                                               image_url = img)
+            al.save()
+        except (IntegrityError, ValueError):
+            return render(request, "auctions/creer.html", {
+                "message": "Erreur dans la creation de l'article.",
+                "liste_categories": AuctionListing.CATEGORIES
+            })
+        return HttpResponseRedirect(reverse("index"))
+    else:
+        return render(request, "auctions/creer.html", {
+            "liste_categories": AuctionListing.CATEGORIES
+        })

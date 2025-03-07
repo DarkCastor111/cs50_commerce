@@ -1,0 +1,38 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+{% if message %}
+<div class="alert alert-danger">{{ message }}</div>
+{% endif %}
+
+<form action="{% url 'creer' %}" method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+        <input autofocus class="form-control" type="text" name="form_titre" placeholder="Titre" id="form_titre_id">
+    </div>
+    <div class="mb-3">
+        <input class="form-control" type="text" name="form_desc" placeholder="Description de l'article" id="form_desc_id">
+    </div>
+    <div class="mb-3">
+        <label for="form_map_id" class="form-label">Mise à prix</label>
+        <input class="form-control" type="text" name="form_map" id="form_map_id">
+    </div>
+    <div class="mb-3">
+        <label for="form_cat_id" class="form-label">Catégorie</label>
+        <select name="form_cat" id="form_cat_id">
+            {% for k, v in liste_categories.items %}
+                <option value="{{ k }}">{{ v }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="form_img_id" class="form-label">Image</label>
+        <input type="url" id="form_img_id" name="form_img" >
+    </div>
+
+    <input class="btn btn-primary" type="submit" value="Créer">
+</form>
+
+
+{% endblock %}
