@@ -8,7 +8,9 @@ from .models import User, AuctionListing
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html", {
+        "articles_a_vendre": AuctionListing.objects.all()
+    })
 
 
 def login_view(request):
@@ -87,3 +89,16 @@ def vue_creerArticle(request):
         return render(request, "auctions/creer.html", {
             "liste_categories": AuctionListing.CATEGORIES
         })
+
+def vue_article(request, id_article):
+    article_a_visualiser = AuctionListing.objects.get(pk=id_article)
+    if article_a_visualiser:
+        return render(request, "auctions/visualiser.html", {
+            "article": article_a_visualiser,
+            "categorie": AuctionListing.CATEGORIES.get(article_a_visualiser.categorie)
+        })
+    else:
+        return render(request, "auctions/erreur.html", {
+            "message": "Article non trouvé"
+        })
+

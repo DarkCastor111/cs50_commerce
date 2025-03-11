@@ -7,7 +7,8 @@ urlpatterns = [
     path("login", views.login_view, name="login"),
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
-    path("creer", views.vue_creerArticle, name="creer"),
+    path("article/creer", views.vue_creerArticle, name="creer"),
+    path("article/<str:id_article>", views.vue_article, name="visualiser"),
     
 
 ]
