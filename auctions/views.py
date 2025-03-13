@@ -3,13 +3,16 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from datetime import datetime
 
 from .models import User, AuctionListing
 
 
 def index(request):
+    liste_articles = AuctionListing.objects.filter(actif=True)
     return render(request, "auctions/index.html", {
-        "articles_a_vendre": AuctionListing.objects.all()
+        "titre": "Tous les articles actifs",
+        "articles_a_vendre": liste_articles
     })
 
 
@@ -77,7 +80,10 @@ def vue_creerArticle(request):
                                                description = desc, 
                                                mise_a_prix = map, 
                                                categorie = cat, 
-                                               image_url = img)
+                                               image_url = img,
+                                               proprietaire = request.user,
+                                               date_creation = datetime.now(),
+                                               actif = True)
             al.save()
         except (IntegrityError, ValueError):
             return render(request, "auctions/creer.html", {
@@ -95,10 +101,18 @@ def vue_article(request, id_article):
     if article_a_visualiser:
         return render(request, "auctions/visualiser.html", {
             "article": article_a_visualiser,
-            "categorie": AuctionListing.CATEGORIES.get(article_a_visualiser.categorie)
+            "categorie": AuctionListing.CATEGORIES.get(article_a_visualiser.categorie),
+            "proprietaire": article_a_visualiser.proprietaire
         })
     else:
         return render(request, "auctions/erreur.html", {
             "message": "Article non trouvé"
         })
+
+def vue_mes_articles(request):
+    liste_articles = AuctionListing.objects.filter(proprietaire = request.user.id)
+    return render(request, "auctions/index.html", {
+        "titre": "Mes articles",
+        "articles_a_vendre": liste_articles
+    })
 

@@ -1,17 +1,22 @@
 {% extends "auctions/layout.html" %}
 
+{% block title %} Détail de l'article {% endblock %}
+
 {% block body %}
-    <h2>Détail de l'article : {{ article.titre }} </h2>
+    <h2>{{ article.titre }}</h2>
 
     <div class="row justify-content-center">
         <div class="col-2">
-            <img class="img-thumbnail" src="{{ article.image_url }}" style="height:100px"/>
+            <img class="img-thumbnail" src="{{ article.image_url }}" style="height:200px"/>
         </div>
-        <div class="col-6">
+        <div class="col-10">
             <h4>Catégorie : {{ categorie }}</h4>
             <h4>Mise à prix : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
             <h4>Description :</h4>
             <p>{{ article.description }}</p>
+            <h4>Date de création : {{ article.date_creation }}</h4>
+            <h4>{% if article.actif %} Actif {% else %} Article désactivé {% endif %}</h4>
+            <h4>Propriétaire : {{ proprietaire.username }} </h4>
         </div>
     </div>
 

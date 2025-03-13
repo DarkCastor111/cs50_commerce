@@ -24,6 +24,9 @@ class AuctionListing(models.Model):
     mise_a_prix = models.FloatField()
     categorie = models.CharField(max_length=64, choices=CATEGORIES, null=True)
     image_url = models.URLField(max_length=254, null=True)
+    date_creation = models.DateField()
+    proprietaire = models.ForeignKey(User, on_delete=models.CASCADE, related_name="articles")
+    actif = models.BooleanField()
 
     def __str__(self):
         return f"{self.titre} : {self.categorie}"

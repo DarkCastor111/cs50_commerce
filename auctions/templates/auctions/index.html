@@ -1,16 +1,17 @@
 {% extends "auctions/layout.html" %}
 
-{% block body %}
-    <h2>Active Listings</h2>
+{% block title %} {{ titre }} {% endblock %}
 
+{% block body %}
     {% for article in articles_a_vendre %}
         <div class="row justify-content-center">
             <div class="col-2">
                 <img class="img-thumbnail" src="{{ article.image_url }}" style="height:100px"/>
             </div>
-            <div class="col-6">
+            <div class="col-10">
                 <h3><a href="{% url 'visualiser' article.id %}">{{ article.titre }}</a> </h3> 
                 <h4>Prix : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
+                <h4>{% if not article.actif %} (Article désactivé) {% endif %}</h4>
             </div>
         </div>
         <hr>
