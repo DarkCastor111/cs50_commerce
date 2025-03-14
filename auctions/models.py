@@ -3,7 +3,9 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
+
+    def __str__(self):
+        return f"{self.username} ({self.email})"
 
 class Comment(models.Model):
     pass
@@ -27,6 +29,7 @@ class AuctionListing(models.Model):
     date_creation = models.DateField()
     proprietaire = models.ForeignKey(User, on_delete=models.CASCADE, related_name="articles")
     actif = models.BooleanField()
+    users_interesses=models.ManyToManyField(User, blank=True, related_name="watchlist")
 
     def __str__(self):
         return f"{self.titre} : {self.categorie}"

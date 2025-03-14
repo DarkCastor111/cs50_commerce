@@ -10,13 +10,21 @@
             <img class="img-thumbnail" src="{{ article.image_url }}" style="height:200px"/>
         </div>
         <div class="col-10">
+            <h4>{% if article.actif %} Actif {% else %} Article désactivé {% endif %}</h4>
+            <h4>Propriétaire : {{ article.proprietaire.username }} </h4>
+            <h4>Date de création : {{ article.date_creation|date:"d/m/Y" }}</h4>
             <h4>Catégorie : {{ categorie }}</h4>
             <h4>Mise à prix : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
             <h4>Description :</h4>
             <p>{{ article.description }}</p>
-            <h4>Date de création : {{ article.date_creation }}</h4>
-            <h4>{% if article.actif %} Actif {% else %} Article désactivé {% endif %}</h4>
-            <h4>Propriétaire : {{ proprietaire.username }} </h4>
+            <h4>Suivi par :</h4>
+            <p>
+                {% for usr in article.users_interesses.all %}
+                    - {% if usr == user %} Vous : {% endif %} {{ usr }} <br>
+                {% empty %}
+                    Personne
+                {% endfor %}
+            </p>
         </div>
     </div>
 

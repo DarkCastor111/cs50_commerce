@@ -12,7 +12,8 @@ def index(request):
     liste_articles = AuctionListing.objects.filter(actif=True)
     return render(request, "auctions/index.html", {
         "titre": "Tous les articles actifs",
-        "articles_a_vendre": liste_articles
+        "articles_a_vendre": liste_articles,
+        "nm_redirect" : "index"
     })
 
 
@@ -110,9 +111,32 @@ def vue_article(request, id_article):
         })
 
 def vue_mes_articles(request):
-    liste_articles = AuctionListing.objects.filter(proprietaire = request.user.id)
+    liste_articles = request.user.articles.all()
     return render(request, "auctions/index.html", {
         "titre": "Mes articles",
-        "articles_a_vendre": liste_articles
+        "articles_a_vendre": liste_articles,
+        "nm_redirect": "mes_articles" 
     })
+
+def vue_gestion_watchlist(request):
+    # On ajoute le user à la liste des users_interesses de l'article
+    id_article = request.POST["form_id_article"]
+    mode = request.POST["form_mode"]
+    redir = request.POST["form_redirect"]
+    article = AuctionListing.objects.get(pk=id_article)
+    usr = request.user
+    if mode == "mode_ajout" : 
+        article.users_interesses.add(usr)
+    else:
+        article.users_interesses.remove(usr)
+    return HttpResponseRedirect(reverse(redir))
+
+def vue_favoris(request):
+    liste_articles = request.user.watchlist.all()
+    return render(request, "auctions/index.html", {
+        "titre": "Favoris",
+        "articles_a_vendre": liste_articles,
+        "nm_redirect": "favoris" 
+    })
+
 

@@ -10,8 +10,30 @@
             </div>
             <div class="col-10">
                 <h3><a href="{% url 'visualiser' article.id %}">{{ article.titre }}</a> </h3> 
-                <h4>Prix : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
-                <h4>{% if not article.actif %} (Article désactivé) {% endif %}</h4>
+                <h4>Prix initial : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
+                {% if article.actif and user.is_authenticated %}
+                    {% if user == article.proprietaire %}
+                        <input class="btn btn-danger btn-sm" type="submit" value="Propriétaire">
+                    {% elif user in article.users_interesses.all %}
+                    <form action="{% url 'api_watchlist' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_id_article" value="{{ article.id }}">
+                        <input type="hidden" name="form_redirect" value="{{ nm_redirect }}">
+                        <input type="hidden" name="form_mode" value="mode_retrait">
+                        <input class="btn btn-secondary btn-sm" type="submit" value="Supprimer des Favoris">
+                    </form>
+                    {% else %}
+                    <form action="{% url 'api_watchlist' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_id_article" value="{{ article.id }}">
+                        <input type="hidden" name="form_redirect" value="{{ nm_redirect }}">
+                        <input type="hidden" name="form_mode" value="mode_ajout">
+                        <input class="btn btn-warning btn-sm" type="submit" value="Ajouter aux Favoris">
+                    </form>
+                    {% endif %}
+                {% elif not article.actif %}
+                    <h4> (Article désactivé) </h4>
+                {% endif %}
             </div>
         </div>
         <hr>
