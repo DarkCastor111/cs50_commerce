@@ -12,15 +12,19 @@
                 <h3><a href="{% url 'visualiser' article.id %}">{{ article.titre }}</a> </h3> 
                 <h4>Prix : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
                 {% if article.actif and user.is_authenticated %}
+                <div class="row">
+                    {% if article.actif %}
+                        <input class="btn btn-success btn-sm m-1" type="submit" value="Actif">
+                    {% endif %}
                     {% if user == article.proprietaire %}
-                        <input class="btn btn-danger btn-sm" type="submit" value="Propriétaire">
+                        <input class="btn btn-danger btn-sm m-1" type="submit" value="Propriétaire">
                     {% elif user in article.users_interesses.all %}
                     <form action="{% url 'api_watchlist' %}" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="form_id_article" value="{{ article.id }}">
                         <input type="hidden" name="form_redirect" value="{{ nm_redirect }}">
                         <input type="hidden" name="form_mode" value="mode_retrait">
-                        <input class="btn btn-secondary btn-sm" type="submit" value="Supprimer des Favoris">
+                        <input class="btn btn-secondary btn-sm m-1" type="submit" value="Supprimer des Favoris">
                     </form>
                     {% else %}
                     <form action="{% url 'api_watchlist' %}" method="post">
@@ -28,11 +32,12 @@
                         <input type="hidden" name="form_id_article" value="{{ article.id }}">
                         <input type="hidden" name="form_redirect" value="{{ nm_redirect }}">
                         <input type="hidden" name="form_mode" value="mode_ajout">
-                        <input class="btn btn-warning btn-sm" type="submit" value="Ajouter aux Favoris">
+                        <input class="btn btn-warning btn-sm m-1" type="submit" value="Ajouter aux Favoris">
                     </form>
                     {% endif %}
+                </div>
                 {% elif not article.actif %}
-                    <h4> (Article désactivé) </h4>
+                    <h4> (Enchère clôturée) </h4>
                 {% endif %}
             </div>
         </div>

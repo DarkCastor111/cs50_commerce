@@ -28,6 +28,7 @@ class AuctionListing(models.Model):
     proprietaire = models.ForeignKey(User, on_delete=models.CASCADE, related_name="articles")
     actif = models.BooleanField()
     users_interesses=models.ManyToManyField(User, blank=True, related_name="watchlist")
+    gagnant = models.ForeignKey(User, null = True, on_delete=models.CASCADE, related_name="articles_gagnes")
 
     def __str__(self):
         return f"{self.titre} : {self.categorie}"

@@ -118,6 +118,15 @@ def vue_mes_articles(request):
         "nm_redirect": "mes_articles" 
     })
 
+def vue_articles_gagnes(request):
+    liste_articles = request.user.articles_gagnes.all()
+    return render(request, "auctions/index.html", {
+        "titre": "Articles gagnés",
+        "articles_a_vendre": liste_articles,
+        "nm_redirect": "articles_gagnes" 
+    })
+
+
 def vue_gestion_watchlist(request):
     # On ajoute le user à la liste des users_interesses de l'article
     id_article = request.POST["form_id_article"]
@@ -142,6 +151,7 @@ def vue_favoris(request):
 def vue_gestion_enchere(request):
     id_article = request.POST["form_id_article"]
     art = AuctionListing.objects.get(pk=id_article)
+    meilleure_enchere = art.encheres.order_by('-valeur_enchere').first()
     try:
         enchere = float(request.POST["form_enchere"])
     except ValueError:        
@@ -149,17 +159,15 @@ def vue_gestion_enchere(request):
             "article": art,
             "categorie": AuctionListing.CATEGORIES.get(art.categorie),
             "message": "Enchère invalide.",
-            "meilleure_enchere": art.encheres.order_by('-valeur_enchere').first()
+            "meilleure_enchere": meilleure_enchere
         }) 
     # Vérification d'une enchère valide
-
-    meilleure_enchere = art.encheres.order_by('-valeur_enchere').first()
     if enchere <= art.mise_a_prix or (meilleure_enchere and enchere <= meilleure_enchere.valeur_enchere) :
         return render(request, "auctions/visualiser.html", {
             "article": art,
             "categorie": AuctionListing.CATEGORIES.get(art.categorie),
             "message": "Renseignez une meilleure enchère.",
-            "meilleure_enchere": art.encheres.order_by('-valeur_enchere').first()
+            "meilleure_enchere": meilleure_enchere
         })        
     try:
         bi = Bid.objects.create(date_creation = datetime.now(),
@@ -183,6 +191,24 @@ def vue_gestion_enchere(request):
         "categorie": AuctionListing.CATEGORIES.get(art.categorie),
         "meilleure_enchere": art.encheres.order_by('-valeur_enchere').first()
     })
+
+def vue_cloture_enchere(request):
+    id_article = request.POST["form_id_article"]
+    art = AuctionListing.objects.get(pk=id_article)
+
+    # Recherche de l'utilisateur gagnant l'enchère
+    meilleure_enchere = art.encheres.order_by('-valeur_enchere').first()
+    
+    art.gagnant = meilleure_enchere.encherisseur
+    art.actif = False
+    art.save()
+
+    return render(request, "auctions/visualiser.html", {
+        "article": art,
+        "categorie": AuctionListing.CATEGORIES.get(art.categorie),
+        "message": "Enchère terminée.",
+    })
+
     
 
 

@@ -22,7 +22,7 @@
     </div>
     <div class="mb-3">
         <label for="form_cat_id" class="form-label">Catégorie</label>
-        <select name="form_cat" id="form_cat_id">
+        <select class="form-control" name="form_cat" id="form_cat_id">
             {% for k, v in liste_categories.items %}
                 <option value="{{ k }}">{{ v }}</option>
             {% endfor %}
@@ -30,7 +30,7 @@
     </div>
     <div class="mb-3">
         <label for="form_img_id" class="form-label">Image</label>
-        <input type="url" id="form_img_id" name="form_img" >
+        <input class="form-control" type="url" id="form_img_id" name="form_img" >
     </div>
 
     <input class="btn btn-primary" type="submit" value="Créer">

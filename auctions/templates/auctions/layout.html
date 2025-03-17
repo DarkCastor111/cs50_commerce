@@ -21,13 +21,16 @@
                 <a class="nav-link" href="{% url 'index' %}">Articles actifs</a>
             </li>
             {% if user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'mes_articles' %}">Mes articles</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'favoris' %}">Favoris ({{ user.watchlist.all|length }}) </a>
-            </li>
-            <li class="nav-item">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'mes_articles' %}">Mes articles</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'articles_gagnes' %}">Articles gagnés</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'favoris' %}">Favoris ({{ user.watchlist.all|length }}) </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="{% url 'creer' %}">Ajouter un article</a>
                 </li>
                 <li class="nav-item">
