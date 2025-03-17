@@ -12,6 +12,7 @@ urlpatterns = [
     path("article/creer", views.vue_creerArticle, name="creer"),
     path("article/<str:id_article>", views.vue_article, name="visualiser"),
     path("watchlist", views.vue_gestion_watchlist, name="api_watchlist"),
+    path("enchere", views.vue_gestion_enchere, name="api_enchere"),
     
 
 ]

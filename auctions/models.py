@@ -10,8 +10,6 @@ class User(AbstractUser):
 class Comment(models.Model):
     pass
 
-class Bid(models.Model):
-    pass
 
 class AuctionListing(models.Model):
     CATEGORIES = {
@@ -34,4 +32,9 @@ class AuctionListing(models.Model):
     def __str__(self):
         return f"{self.titre} : {self.categorie}"
 
+class Bid(models.Model):
+    date_creation = models.DateField()
+    valeur_enchere = models.FloatField()
+    article = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, related_name="encheres")
+    encherisseur = models.ForeignKey(User, on_delete=models.CASCADE, related_name="encheres")
 

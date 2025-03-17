@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from datetime import datetime
 
-from .models import User, AuctionListing
+from .models import User, AuctionListing, Bid
 
 
 def index(request):
@@ -103,7 +103,7 @@ def vue_article(request, id_article):
         return render(request, "auctions/visualiser.html", {
             "article": article_a_visualiser,
             "categorie": AuctionListing.CATEGORIES.get(article_a_visualiser.categorie),
-            "proprietaire": article_a_visualiser.proprietaire
+            "meilleure_enchere": article_a_visualiser.encheres.order_by('-valeur_enchere').first()
         })
     else:
         return render(request, "auctions/erreur.html", {
@@ -138,5 +138,51 @@ def vue_favoris(request):
         "articles_a_vendre": liste_articles,
         "nm_redirect": "favoris" 
     })
+
+def vue_gestion_enchere(request):
+    id_article = request.POST["form_id_article"]
+    art = AuctionListing.objects.get(pk=id_article)
+    try:
+        enchere = float(request.POST["form_enchere"])
+    except ValueError:        
+        return render(request, "auctions/visualiser.html", {
+            "article": art,
+            "categorie": AuctionListing.CATEGORIES.get(art.categorie),
+            "message": "Enchère invalide.",
+            "meilleure_enchere": art.encheres.order_by('-valeur_enchere').first()
+        }) 
+    # Vérification d'une enchère valide
+
+    meilleure_enchere = art.encheres.order_by('-valeur_enchere').first()
+    if enchere <= art.mise_a_prix or (meilleure_enchere and enchere <= meilleure_enchere.valeur_enchere) :
+        return render(request, "auctions/visualiser.html", {
+            "article": art,
+            "categorie": AuctionListing.CATEGORIES.get(art.categorie),
+            "message": "Renseignez une meilleure enchère.",
+            "meilleure_enchere": art.encheres.order_by('-valeur_enchere').first()
+        })        
+    try:
+        bi = Bid.objects.create(date_creation = datetime.now(),
+                                valeur_enchere = enchere,
+                                article = art,
+                                encherisseur = request.user
+                                )
+        bi.save()
+        art.users_interesses.add(request.user)
+        art.mise_a_prix = enchere
+        art.save()
+    except (IntegrityError, ValueError):
+        return render(request, "auctions/visualiser.html", {
+            "article": art,
+            "categorie": AuctionListing.CATEGORIES.get(art.categorie),
+            "message": "Erreur BDD dans la creation de l'enchère.",
+            "meilleure_enchere": art.encheres.order_by('-valeur_enchere').first()
+        })
+    return render(request, "auctions/visualiser.html", {
+        "article": art,
+        "categorie": AuctionListing.CATEGORIES.get(art.categorie),
+        "meilleure_enchere": art.encheres.order_by('-valeur_enchere').first()
+    })
+    
 
 

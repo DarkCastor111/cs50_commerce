@@ -3,6 +3,10 @@
 {% block title %} Détail de l'article {% endblock %}
 
 {% block body %}
+    {% if message %}
+    <div class="alert alert-danger">{{ message }}</div>
+    {% endif %}
+
     <h2>{{ article.titre }}</h2>
 
     <div class="row justify-content-center">
@@ -14,7 +18,7 @@
             <h4>Propriétaire : {{ article.proprietaire.username }} </h4>
             <h4>Date de création : {{ article.date_creation|date:"d/m/Y" }}</h4>
             <h4>Catégorie : {{ categorie }}</h4>
-            <h4>Mise à prix : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
+            <h4>Valeur : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
             <h4>Description :</h4>
             <p>{{ article.description }}</p>
             <h4>Suivi par :</h4>
@@ -25,6 +29,19 @@
                     Personne
                 {% endfor %}
             </p>
+            {% if meilleure_enchere %}
+                <h4>Meilleure enchère par {{ meilleure_enchere.encherisseur.username }} le {{ meilleure_enchere.date_creation|date:"d/m/Y" }}</h4>
+            {% else %}
+                <h4>Aucune enchère</h4>
+            {% endif %}
+            {% if user.is_authenticated %}
+            <form action="{% url 'api_enchere' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="form_id_article" value="{{ article.id }}">
+                <input type="text" name="form_enchere" value="">
+                <input class="btn btn-secondary btn-sm" type="submit" value="Enchérir">
+            </form>
+            {% endif %}
         </div>
     </div>
 
