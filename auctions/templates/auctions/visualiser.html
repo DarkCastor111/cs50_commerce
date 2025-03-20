@@ -76,7 +76,7 @@
                                 <label for="form_enchere" class="form-label h4">Mon enchère : </label>
                             </div>
                             <div class="col-lg-5 col-6">
-                                <input class="form-control" type="text" name="form_enchere" value="">
+                                <input class="form-control" type="text" name="form_enchere" value="{{ df_enchere }}">
                             </div>
                             <div class="col-lg-2 col-6">
                                 <input class="btn btn-secondary btn-sm m-1" type="submit" value="Enchérir">
@@ -106,7 +106,7 @@
                     <form action="{% url 'api_commentaire' %}" method="post">
                         {% csrf_token %}
                         <div class="row">
-                            <textarea class="form-control" name="form_commentaire" placeholder="Votre Commentaire"></textarea>
+                            <textarea class="form-control" name="form_commentaire" value="{{ df_commentaire }}"></textarea>
                             <input type="hidden" name="form_id_article" value="{{ article.id }}">
                             <input class="btn btn-secondary btn-sm m-1" type="submit" value="Commenter">
                         </div>

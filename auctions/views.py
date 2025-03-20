@@ -101,8 +101,7 @@ def vue_article(request, id_article):
     article_a_visualiser = AuctionListing.objects.get(pk=id_article)
     if article_a_visualiser:
         return render(request, "auctions/visualiser.html", {
-            "article": article_a_visualiser,
-            "categorie": AuctionListing.CATEGORIES.get(article_a_visualiser.categorie)
+            "article": article_a_visualiser
         })
     else:
         return render(request, "auctions/erreur.html", {
@@ -151,20 +150,21 @@ def api_gestion_enchere(request):
     id_article = request.POST["form_id_article"]
     art = AuctionListing.objects.get(pk=id_article)
     meilleure_enchere = art.encheres.order_by('-valeur_enchere').first()
+    form_ench = request.POST["form_enchere"]
     try:
-        enchere = float(request.POST["form_enchere"])
+        enchere = float(form_ench)
     except ValueError:        
         return render(request, "auctions/visualiser.html", {
             "article": art,
-            "categorie": AuctionListing.CATEGORIES.get(art.categorie),
-            "message": "Enchère invalide."
+            "message": "Enchère invalide.",
+            "df_enchere": form_ench
         }) 
     # Vérification d'une enchère valide
     if enchere <= art.mise_a_prix or (meilleure_enchere and enchere <= meilleure_enchere.valeur_enchere) :
         return render(request, "auctions/visualiser.html", {
             "article": art,
-            "categorie": AuctionListing.CATEGORIES.get(art.categorie),
-            "message": "Renseignez une meilleure enchère."
+            "message": "Renseignez une meilleure enchère.",
+            "df_enchere": form_ench
         })        
     try:
         bi = Bid.objects.create(date_creation = datetime.now(),
@@ -179,13 +179,11 @@ def api_gestion_enchere(request):
     except (IntegrityError, ValueError):
         return render(request, "auctions/visualiser.html", {
             "article": art,
-            "categorie": AuctionListing.CATEGORIES.get(art.categorie),
-            "message": "Erreur BDD dans la creation de l'enchère."
+            "message": "Erreur BDD dans la creation de l'enchère.",
+            "df_enchere": form_ench
         })
-    return render(request, "auctions/visualiser.html", {
-        "article": art,
-        "categorie": AuctionListing.CATEGORIES.get(art.categorie)
-    })
+    return HttpResponseRedirect(f"/article/{id_article}")
+
 
 def api_cloture_enchere(request):
     id_article = request.POST["form_id_article"]
@@ -198,11 +196,7 @@ def api_cloture_enchere(request):
     art.actif = False
     art.save()
 
-    return render(request, "auctions/visualiser.html", {
-        "article": art,
-        "categorie": AuctionListing.CATEGORIES.get(art.categorie),
-        "message": "Enchère terminée.",
-    })
+    return HttpResponseRedirect(f"/article/{id_article}")
 
 
 def api_ajouter_commentaires(request):
@@ -221,13 +215,10 @@ def api_ajouter_commentaires(request):
     except (IntegrityError, ValueError):
         return render(request, "auctions/visualiser.html", {
             "article": art,
-            "categorie": AuctionListing.CATEGORIES.get(art.categorie),
-            "message": "Erreur BDD dans la creation du commentaire."
+            "message": "Erreur BDD dans la creation du commentaire.",
+            "df_commentaire" : txtcom
         })
-    return render(request, "auctions/visualiser.html", {
-        "article": art,
-        "categorie": AuctionListing.CATEGORIES.get(art.categorie)
-    })
+    return HttpResponseRedirect(f"/article/{id_article}")
     
 
 
