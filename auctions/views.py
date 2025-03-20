@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from datetime import datetime
 
-from .models import User, AuctionListing, Bid
+from .models import User, AuctionListing, Bid, Comment
 
 
 def index(request):
@@ -102,8 +102,7 @@ def vue_article(request, id_article):
     if article_a_visualiser:
         return render(request, "auctions/visualiser.html", {
             "article": article_a_visualiser,
-            "categorie": AuctionListing.CATEGORIES.get(article_a_visualiser.categorie),
-            "meilleure_enchere": article_a_visualiser.encheres.order_by('-valeur_enchere').first()
+            "categorie": AuctionListing.CATEGORIES.get(article_a_visualiser.categorie)
         })
     else:
         return render(request, "auctions/erreur.html", {
@@ -127,7 +126,7 @@ def vue_articles_gagnes(request):
     })
 
 
-def vue_gestion_watchlist(request):
+def api_gestion_watchlist(request):
     # On ajoute le user à la liste des users_interesses de l'article
     id_article = request.POST["form_id_article"]
     mode = request.POST["form_mode"]
@@ -148,7 +147,7 @@ def vue_favoris(request):
         "nm_redirect": "favoris" 
     })
 
-def vue_gestion_enchere(request):
+def api_gestion_enchere(request):
     id_article = request.POST["form_id_article"]
     art = AuctionListing.objects.get(pk=id_article)
     meilleure_enchere = art.encheres.order_by('-valeur_enchere').first()
@@ -158,16 +157,14 @@ def vue_gestion_enchere(request):
         return render(request, "auctions/visualiser.html", {
             "article": art,
             "categorie": AuctionListing.CATEGORIES.get(art.categorie),
-            "message": "Enchère invalide.",
-            "meilleure_enchere": meilleure_enchere
+            "message": "Enchère invalide."
         }) 
     # Vérification d'une enchère valide
     if enchere <= art.mise_a_prix or (meilleure_enchere and enchere <= meilleure_enchere.valeur_enchere) :
         return render(request, "auctions/visualiser.html", {
             "article": art,
             "categorie": AuctionListing.CATEGORIES.get(art.categorie),
-            "message": "Renseignez une meilleure enchère.",
-            "meilleure_enchere": meilleure_enchere
+            "message": "Renseignez une meilleure enchère."
         })        
     try:
         bi = Bid.objects.create(date_creation = datetime.now(),
@@ -183,16 +180,14 @@ def vue_gestion_enchere(request):
         return render(request, "auctions/visualiser.html", {
             "article": art,
             "categorie": AuctionListing.CATEGORIES.get(art.categorie),
-            "message": "Erreur BDD dans la creation de l'enchère.",
-            "meilleure_enchere": art.encheres.order_by('-valeur_enchere').first()
+            "message": "Erreur BDD dans la creation de l'enchère."
         })
     return render(request, "auctions/visualiser.html", {
         "article": art,
-        "categorie": AuctionListing.CATEGORIES.get(art.categorie),
-        "meilleure_enchere": art.encheres.order_by('-valeur_enchere').first()
+        "categorie": AuctionListing.CATEGORIES.get(art.categorie)
     })
 
-def vue_cloture_enchere(request):
+def api_cloture_enchere(request):
     id_article = request.POST["form_id_article"]
     art = AuctionListing.objects.get(pk=id_article)
 
@@ -208,6 +203,35 @@ def vue_cloture_enchere(request):
         "categorie": AuctionListing.CATEGORIES.get(art.categorie),
         "message": "Enchère terminée.",
     })
+
+
+def api_ajouter_commentaires(request):
+    id_article = request.POST["form_id_article"]
+    art = AuctionListing.objects.get(pk=id_article)
+
+    txtcom = request.POST["form_commentaire"]
+
+    try:
+        com = Comment.objects.create(date_creation = datetime.now(),
+                                commentaire = txtcom,
+                                article = art,
+                                auteur = request.user
+                                )
+        com.save()
+    except (IntegrityError, ValueError):
+        return render(request, "auctions/visualiser.html", {
+            "article": art,
+            "categorie": AuctionListing.CATEGORIES.get(art.categorie),
+            "message": "Erreur BDD dans la creation du commentaire."
+        })
+    return render(request, "auctions/visualiser.html", {
+        "article": art,
+        "categorie": AuctionListing.CATEGORIES.get(art.categorie)
+    })
+    
+
+
+
 
     
 

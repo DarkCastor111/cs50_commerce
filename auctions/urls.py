@@ -12,9 +12,10 @@ urlpatterns = [
     path("article/favoris", views.vue_favoris, name="favoris"),
     path("article/creer", views.vue_creerArticle, name="creer"),
     path("article/<str:id_article>", views.vue_article, name="visualiser"),
-    path("watchlist", views.vue_gestion_watchlist, name="api_watchlist"),
-    path("enchere", views.vue_gestion_enchere, name="api_enchere"),
-    path("cloture", views.vue_cloture_enchere, name="api_cloture"),
+    path("watchlist", views.api_gestion_watchlist, name="api_watchlist"),
+    path("enchere", views.api_gestion_enchere, name="api_enchere"),
+    path("cloture", views.api_cloture_enchere, name="api_cloture"),
+    path("commentaire", views.api_ajouter_commentaires, name="api_commentaire"),
     
 
 ]

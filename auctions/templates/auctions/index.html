@@ -4,13 +4,18 @@
 
 {% block body %}
     {% for article in articles_a_vendre %}
-        <div class="row justify-content-center">
-            <div class="col-2">
-                <img class="img-thumbnail" src="{{ article.image_url }}" style="height:100px"/>
+    <div class="container">
+        <div class="d-flex flex-md-row flex-column">
+            <div class="col-md-4">
+                <img class="img-thumbnail mx-auto d-block" src="{{ article.image_url }}" style="width:80%"/>
             </div>
-            <div class="col-10">
-                <h3><a href="{% url 'visualiser' article.id %}">{{ article.titre }}</a> </h3> 
-                <h4>Prix : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
+            <div class="col-md-8 m-2">
+                <div class="row">
+                    <h3><a href="{% url 'visualiser' article.id %}">{{ article.titre }}</a> </h3> 
+                </div>
+                <div class="row">
+                    <h4>Prix : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
+                </div>
                 {% if article.actif and user.is_authenticated %}
                 <div class="row">
                     {% if article.actif %}
@@ -37,11 +42,14 @@
                     {% endif %}
                 </div>
                 {% elif not article.actif %}
-                    <h4> (Enchère clôturée) </h4>
+                <div class="row">
+                    <input class="btn btn-secondary btn-sm m-1" type="submit" value="Enchère clôturée">
+                </div>
                 {% endif %}
             </div>
         </div>
-        <hr>
+    </div>
+    <hr>
     {% endfor %}
 
 {% endblock %}

@@ -9,51 +9,115 @@
 
     <h2>{{ article.titre }}</h2>
 
-    <div class="row justify-content-center">
-        <div class="col-2">
-            <img class="img-thumbnail" src="{{ article.image_url }}" style="height:200px"/>
-        </div>
-        <div class="col-10">
-            <h4>{% if article.actif %} Actif {% else %} Article cloturé {% endif %}</h4>
-            <h4>Propriétaire : {{ article.proprietaire.username }} </h4>
-            <h4>Date de création : {{ article.date_creation|date:"d/m/Y" }}</h4>
-            <h4>Catégorie : {{ categorie }}</h4>
-            <h4>Valeur : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
-            <h4>Description :</h4>
-            <p>{{ article.description }}</p>
-            <h4>Suivi par :</h4>
-            <p>
-                {% for usr in article.users_interesses.all %}
-                    - {% if usr == user %} Vous : {% endif %} {{ usr }} <br>
-                {% empty %}
-                    Personne
-                {% endfor %}
-            </p>
-            {% if meilleure_enchere %}
-                <h4>Meilleure enchère par {{ meilleure_enchere.encherisseur.username }} le {{ meilleure_enchere.date_creation|date:"d/m/Y" }}</h4>
-            {% elif article.actif %}
-                <h4>Aucune enchère</h4>
-            {% else %}
-                <h4>Enchères terminées. Vainqueur = {{ article.gagnant }}</h4>
-            {% endif %}
-            {% if user.is_authenticated %}
-                {% if user == article.proprietaire %}
-                <form action="{% url 'api_cloture' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_id_article" value="{{ article.id }}">
-                    <input class="btn btn-danger btn-sm" type="submit" value="Cloturer l'enchère">
-                </form>
-                {% elif article.actif %}
-                <form action="{% url 'api_enchere' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_id_article" value="{{ article.id }}">
-                    <input class="form-control" type="text" name="form_enchere" value="">
-                    <input class="btn btn-secondary btn-sm" type="submit" value="Enchérir">
-                </form>
-                {% endif %}
-            {% endif %}
+
+        <div class="d-flex flex-md-row flex-column">
+            <div class="col-md-6">
+                <img class="img-thumbnail mx-auto d-block" src="{{ article.image_url }}" style="width:100%"/>
             </div>
-    </div>
+            <div class="col-md-6 m-2">
+                <div class="row"> 
+                    <h4>{% if article.actif %} 
+                    <input class="btn btn-success btn-sm m-1" type="submit" value="Actif"> 
+                    {% else %} 
+                    <input class="btn btn-secondary btn-sm m-1" type="submit" value="Enchère clôturée">
+                    {% endif %}</h4>
+                </div>
+                <div class="row"> <h4>Propriétaire : {{ article.proprietaire.username }} </h4> </div>
+                <div class="row"> <h4>Date de création : {{ article.date_creation|date:"d/m/Y" }}</h4> </div>
+                {% for key, value in article.CATEGORIES.items %}
+                    {% if key == article.categorie %}
+                        <div class="row"> <h4>Catégorie : {{ value }}</h4> </div>
+                    {% endif %}
+                {% endfor %}
+                
+                <div class="row"> <h4>Valeur : {{ article.mise_a_prix|floatformat:2 }} Euros</h4> </div>
+
+                    {% with article.encheres.all|dictsortreversed:"valeur_enchere"|first as meilleure_enchere %}
+                        {% if meilleure_enchere %}
+                        <p>(Meilleure enchère par {{ meilleure_enchere.encherisseur.username }} le {{ meilleure_enchere.date_creation|date:"d/m à H:i" }})</p>
+                        {% else %}
+                            <p>Aucune enchère pour cet article.</p>
+                        {% endif %}
+                    {% endwith %}
+
+   
+                <div class="row"> <h4>Description :</h4> </div>
+                <p>{{ article.description }}</p>
+                <div class="row">
+                    <h4>Suivi par :</h4>
+                </div>
+                    <p>
+                        {% for usr in article.users_interesses.all %}
+                        - {% if usr == user %} Vous : {% endif %} {{ usr }} <br>
+                        {% empty %}
+                        Personne
+                        {% endfor %}
+                    </p>
+
+                    <hr>
+
+
+                <div class="row">
+                {% if user.is_authenticated and article.actif %}
+                    {% if user == article.proprietaire %}
+
+                        <form action="{% url 'api_cloture' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="form_id_article" value="{{ article.id }}">
+                            <input class="btn btn-danger btn-sm m-1" type="submit" value="Cloturer l'enchère">
+                        </form>
+
+                    {% else %}
+                    <form action="{% url 'api_enchere' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="form_id_article" value="{{ article.id }}">
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <label for="form_enchere" class="form-label h4">Mon enchère : </label>
+                            </div>
+                            <div class="col-lg-5 col-6">
+                                <input class="form-control" type="text" name="form_enchere" value="">
+                            </div>
+                            <div class="col-lg-2 col-6">
+                                <input class="btn btn-secondary btn-sm m-1" type="submit" value="Enchérir">
+                            </div>
+                        </div>
+                    </form>
+                    {% endif %}
+                {% endif %}
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <h4>Commentaires :</h4>
+                </div>
+
+                {% for com in article.commentaires.all %}
+                    <p>
+                        - le {{ com.date_creation|date:"d/m/Y à H:i" }}, <b>{{ com.auteur.username }}</b> a écrit : <br>
+                        {{ com.commentaire|linebreaksbr }}
+                    </p>
+                {% empty %}
+                    <p>Soyez le premier à laisser un commentaire</p>
+                {% endfor %}
+
+                {% if user.is_authenticated and article.actif %}
+                    <form action="{% url 'api_commentaire' %}" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <textarea class="form-control" name="form_commentaire" placeholder="Votre Commentaire"></textarea>
+                            <input type="hidden" name="form_id_article" value="{{ article.id }}">
+                            <input class="btn btn-secondary btn-sm m-1" type="submit" value="Commenter">
+                        </div>
+                    </form>
+                {% endif %}
+
+
+
+            </div>
+        </div>
+
 
 
 {% endblock %}
