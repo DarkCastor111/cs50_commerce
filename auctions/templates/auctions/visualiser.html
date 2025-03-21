@@ -15,13 +15,12 @@
                 <img class="img-thumbnail mx-auto d-block" src="{{ article.image_url }}" style="width:100%"/>
             </div>
             <div class="col-md-6 m-2">
-                <div class="row"> 
-                    <h4>{% if article.actif %} 
-                    <input class="btn btn-success btn-sm m-1" type="submit" value="Actif"> 
-                    {% else %} 
-                    <input class="btn btn-secondary btn-sm m-1" type="submit" value="Enchère clôturée">
-                    {% endif %}</h4>
-                </div>
+                {% if article.actif %} 
+                    <span class="badge text-bg-success">Actif</span> 
+                {% else %} 
+                    <span class="badge text-bg-secondary">Enchère cloturée</span>
+                {% endif %}
+
                 <div class="row"> <h4>Propriétaire : {{ article.proprietaire.username }} </h4> </div>
                 <div class="row"> <h4>Date de création : {{ article.date_creation|date:"d/m/Y" }}</h4> </div>
                 {% for key, value in article.CATEGORIES.items %}
@@ -57,8 +56,8 @@
                     <hr>
 
 
-                <div class="row">
                 {% if user.is_authenticated and article.actif %}
+                <div class="row">
                     {% if user == article.proprietaire %}
 
                         <form action="{% url 'api_cloture' %}" method="post">
@@ -84,10 +83,9 @@
                         </div>
                     </form>
                     {% endif %}
-                {% endif %}
                 </div>
-
                 <hr>
+                {% endif %}
 
                 <div class="row">
                     <h4>Commentaires :</h4>
@@ -99,17 +97,21 @@
                         {{ com.commentaire|linebreaksbr }}
                     </p>
                 {% empty %}
+                    {% if article.actif %}
                     <p>Soyez le premier à laisser un commentaire</p>
+                    {% else %}
+                    <p>Pas de commentaire</p>
+                    {% endif %}
                 {% endfor %}
 
                 {% if user.is_authenticated and article.actif %}
                     <form action="{% url 'api_commentaire' %}" method="post">
                         {% csrf_token %}
-                        <div class="row">
-                            <textarea class="form-control" name="form_commentaire" value="{{ df_commentaire }}"></textarea>
-                            <input type="hidden" name="form_id_article" value="{{ article.id }}">
-                            <input class="btn btn-secondary btn-sm m-1" type="submit" value="Commenter">
-                        </div>
+                        <textarea class="form-control" name="form_commentaire" value="{{ df_commentaire }}"></textarea>
+                        <input type="hidden" name="form_id_article" value="{{ article.id }}">
+
+                        <input class="btn btn-secondary btn-sm m-1" type="submit" value="Commenter">
+
                     </form>
                 {% endif %}
 

@@ -11,42 +11,40 @@
             </div>
             <div class="col-md-8 m-2">
                 <div class="row">
-                    <h3><a href="{% url 'visualiser' article.id %}">{{ article.titre }}</a> </h3> 
+                    <h3><a href="{% url 'visualiser' article.id %}">{{ article.titre }}</a>
+                        {% if article.actif and user.is_authenticated and user in article.users_interesses.all %}
+                        *
+                        {% endif %}
+                    </h3>
+
                 </div>
                 <div class="row">
                     <h4>Prix : {{ article.mise_a_prix|floatformat:2 }} Euros</h4>
                 </div>
-                {% if article.actif and user.is_authenticated %}
-                <div class="row">
-                    {% if article.actif %}
-                        <input class="btn btn-success btn-sm m-1" type="submit" value="Actif">
-                    {% endif %}
-                    {% if user == article.proprietaire %}
-                        <input class="btn btn-danger btn-sm m-1" type="submit" value="Propriétaire">
-                    {% elif user in article.users_interesses.all %}
-                    <form action="{% url 'api_watchlist' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_id_article" value="{{ article.id }}">
-                        <input type="hidden" name="form_redirect" value="{{ nm_redirect }}">
-                        <input type="hidden" name="form_mode" value="mode_retrait">
-                        <input class="btn btn-secondary btn-sm m-1" type="submit" value="Supprimer des Favoris">
-                    </form>
-                    {% else %}
-                    <form action="{% url 'api_watchlist' %}" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="form_id_article" value="{{ article.id }}">
-                        <input type="hidden" name="form_redirect" value="{{ nm_redirect }}">
-                        <input type="hidden" name="form_mode" value="mode_ajout">
-                        <input class="btn btn-warning btn-sm m-1" type="submit" value="Ajouter aux Favoris">
-                    </form>
-                    {% endif %}
-                </div>
-                {% elif not article.actif %}
-                <div class="row">
-                    <input class="btn btn-secondary btn-sm m-1" type="submit" value="Enchère clôturée">
-                </div>
+                {% if user.is_authenticated and user == article.proprietaire %}
+                <span class="badge text-bg-danger">Propriétaire</span>
                 {% endif %}
-            </div>
+                {% if article.actif %}
+                <span class="badge text-bg-success">Actif</span>
+                {% else %}
+                <span class="badge text-bg-secondary">Enchère clôturée</span>
+                {% endif %}
+
+                {% if article.actif and user.is_authenticated and not user == article.proprietaire %}
+                <form action="{% url 'api_watchlist' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_id_article" value="{{ article.id }}">
+                    <input type="hidden" name="form_redirect" value="{{ nm_redirect }}">
+                        {% if user in article.users_interesses.all %}
+                        <input type="hidden" name="form_mode" value="mode_retrait">
+                        <input class="btn btn-secondary btn-sm m-1" type="submit" value="Supprimer des favoris">
+                        {% else %}
+                        <input type="hidden" name="form_mode" value="mode_ajout">
+                        <input class="btn btn-warning btn-sm m-1" type="submit" value="Ajouter aux favoris">
+                        {% endif %}
+                </form>
+                {% endif %}
+        </div>
         </div>
     </div>
     <hr>
