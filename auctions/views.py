@@ -8,12 +8,19 @@ from datetime import datetime
 from .models import User, AuctionListing, Bid, Comment
 
 
-def index(request):
-    liste_articles = AuctionListing.objects.filter(actif=True)
+def index(request, cle_cat="**"):
+    if cle_cat == "**":
+        liste_articles = AuctionListing.objects.filter(actif=True)
+        redirect="index"
+    else:
+        liste_articles = AuctionListing.objects.filter(actif=True, categorie=cle_cat)
+        redirect="categorie"
+
     return render(request, "auctions/index.html", {
         "titre": "Tous les articles actifs",
         "articles_a_vendre": liste_articles,
-        "nm_redirect" : "index"
+        "nm_redirect" : redirect,
+        "ctx_redirect" : cle_cat
     })
 
 
@@ -130,20 +137,24 @@ def api_gestion_watchlist(request):
     id_article = request.POST["form_id_article"]
     mode = request.POST["form_mode"]
     redir = request.POST["form_redirect"]
+    ctx = request.POST["form_ctx"]
     article = AuctionListing.objects.get(pk=id_article)
     usr = request.user
     if mode == "mode_ajout" : 
         article.users_interesses.add(usr)
     else:
         article.users_interesses.remove(usr)
-    return HttpResponseRedirect(reverse(redir))
+    if redir == "index" or redir == "favoris":
+        return HttpResponseRedirect(reverse(redir))
+    else:
+        return HttpResponseRedirect(reverse(redir , args=[ctx]))
 
 def vue_favoris(request):
     liste_articles = request.user.watchlist.all()
     return render(request, "auctions/index.html", {
         "titre": "Favoris",
         "articles_a_vendre": liste_articles,
-        "nm_redirect": "favoris" 
+        "nm_redirect": "favoris"
     })
 
 def api_gestion_enchere(request):
@@ -182,7 +193,7 @@ def api_gestion_enchere(request):
             "message": "Erreur BDD dans la creation de l'enchère.",
             "df_enchere": form_ench
         })
-    return HttpResponseRedirect(f"/article/{id_article}")
+    return HttpResponseRedirect(reverse("visualiser", args=[id_article]))
 
 
 def api_cloture_enchere(request):
@@ -196,7 +207,7 @@ def api_cloture_enchere(request):
     art.actif = False
     art.save()
 
-    return HttpResponseRedirect(f"/article/{id_article}")
+    return HttpResponseRedirect(reverse("visualiser", args=[id_article]))
 
 
 def api_ajouter_commentaires(request):
@@ -218,7 +229,7 @@ def api_ajouter_commentaires(request):
             "message": "Erreur BDD dans la creation du commentaire.",
             "df_commentaire" : txtcom
         })
-    return HttpResponseRedirect(f"/article/{id_article}")
+    return HttpResponseRedirect(reverse("visualiser", args=[id_article]))
     
 
 

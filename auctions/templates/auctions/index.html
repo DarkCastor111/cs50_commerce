@@ -35,6 +35,7 @@
                     {% csrf_token %}
                     <input type="hidden" name="form_id_article" value="{{ article.id }}">
                     <input type="hidden" name="form_redirect" value="{{ nm_redirect }}">
+                    <input type="hidden" name="form_ctx" value="{{ ctx_redirect }}">
                         {% if user in article.users_interesses.all %}
                         <input type="hidden" name="form_mode" value="mode_retrait">
                         <input class="btn btn-secondary btn-sm m-1" type="submit" value="Supprimer des favoris">
